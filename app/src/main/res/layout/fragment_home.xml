@@ -12,6 +12,8 @@
         android:autofillHints="@null"
         android:hint="@string/search_here"
         android:inputType="text"
+        android:layout_marginStart="@dimen/margin_padding_size_medium"
+        android:layout_marginEnd="@dimen/margin_padding_size_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

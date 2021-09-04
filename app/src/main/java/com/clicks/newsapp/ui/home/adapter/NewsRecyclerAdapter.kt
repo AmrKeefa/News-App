@@ -15,12 +15,14 @@ class NewsRecyclerAdapter() :
     private var items = mutableListOf<Article>()
 
     fun setData(items: List<Article>) {
-        this.items.clear()
         this.items.addAll(items)
+
+
     }
     fun clear() {
         items.clear()
         notifyItemRangeRemoved(0, itemCount)
+        notifyDataSetChanged()
     }
 
     private var itemCallback: ((Article) -> Unit)? = null
@@ -46,7 +48,6 @@ class NewsRecyclerAdapter() :
         }
         holder.newsTitleTextView.text = currentItem.title
         holder.sourceNameTextView.text = currentItem.source?.name
-
     }
 
     override fun getItemCount(): Int = items.size

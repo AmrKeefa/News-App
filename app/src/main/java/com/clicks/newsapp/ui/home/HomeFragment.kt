@@ -7,6 +7,7 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.clicks.newsapp.R
 import com.clicks.newsapp.data.model.NewsResponse
@@ -15,6 +16,7 @@ import com.clicks.newsapp.utils.Constants
 import com.clicks.newsapp.utils.ResourceState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.coroutines.*
 
 
 @AndroidEntryPoint
@@ -24,6 +26,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private val adapter by lazy { NewsRecyclerAdapter() }
     private var newList = mutableListOf<NewsResponse.Article>()
     private var filteredList = mutableListOf<NewsResponse.Article>()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         getNews()
@@ -37,7 +40,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             when (resources.state) {
                 ResourceState.LOADING -> {
                     newsSwipe.isRefreshing = true
-
                 }
                 ResourceState.SUCCESS -> {
                     newsSwipe.isRefreshing = false
@@ -47,9 +49,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                             adapter.setData(it)
                             newList.addAll(it)
                         }
-
-
-
                         setNewsAdapter()
                     }
                 }
@@ -60,7 +59,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
             }
         }
-
     }
 
     private fun setupNewsSwipeListener() {
@@ -82,33 +80,31 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun setupSearch() {
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
-                filter(p0.toString())
-
-
+                if (p0.toString() != "") {
+                    filter(p0.toString())
+                } else {
+                    adapter.clear()
+                    getNews()
+                }
             }
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
             }
-
-
         })
     }
 
     fun filter(text: String) {
-        for (items in newList) {
-            if (items.title?.lowercase()!!.contains(text.lowercase())) {
-
-                filteredList.add(items)
+        for (article in newList) {
+            if (article.title?.lowercase()!!.contains(text.lowercase())) {
+                filteredList.add(article)
             } else {
-                filteredList.remove(items)
+                filteredList.remove(article)
             }
+            adapter.clear()
+            adapter.setData(filteredList)
         }
-        adapter.clear()
-        adapter.setData(filteredList)
-
     }
 }
